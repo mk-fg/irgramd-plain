@@ -1,3 +1,54 @@
+# irgramd-plain - fork of irgramd
+
+Fork of [prsai/irgramd] project on github (can't access its darcs repo),
+with a bunch of local tweaks, mostly focused on providing more IRC-like
+plaintext experience.
+
+These changes are for me to bring experience closer to how you'd see/use
+regular IRC and other \<protocol\>-to-IRC proxies like [bitlbee], [localslackirc],
+[matrix2051] or [rdircd].
+
+Changes are intended to be simple to rebase on top of any upstream updates,
+at the cost of being hacky/ad-hoc, non-optional, only focused on my specific
+use-case and preferences, squashed in one commit/patch.
+
+I'd recommend trying original [prsai/irgramd] project first, and picking up
+changes from here if something along those lines looks useful to you as well.
+
+Vague list of what these local changes are intended to do:
+
+- Remove `[<msgid>]` tags from all messages, `... \` in multiline msgs,
+  not echo own msgs back (I think was done to show own-msg id-tag).
+
+- Split "original-msg + reply" combo onto separate lines,
+  to easily see an actual reply-message posted there on its own.
+
+- Skip irrelevant noise like reactions, channel settings or "pending" events.
+
+- Shorter message prefixes, chat channel topics, and other mostly-useless
+  noise that has to to be skipped when reading stuff left-to-right.
+
+- Don't send TelegramSrv greeting, remove timestamps from logging
+  (not needed in systemd journal).
+
+- Any relevant bugfixes, which are also likely reported in upstream repo.
+
+- See [prsai/irgramd#6] if using telegram account with a password, not patched here.
+
+URLs of this repository:
+
+- <https://github.com/mk-fg/irgramd-plain>
+- <https://codeberg.org/mk-fg/irgramd-plain>
+- <https://fraggod.net/code/git/irgramd-plain>
+
+README for original project follows below.
+
+[prsai/irgramd]: https://github.com/prsai/irgramd
+[localslackirc]: https://codeberg.org/ltworf/localslackirc
+[matrix2051]: https://github.com/progval/matrix2051
+[rdircd]: https://github.com/mk-fg/reliable-discord-client-irc-daemon
+[prsai/irgramd#6]: https://github.com/prsai/irgramd/issues/6
+
 # irgramd - IRC <-> Telegram Gateway
 
 irgramd is a gateway that allows connecting from an [IRC] client to
@@ -5,7 +56,7 @@ irgramd is a gateway that allows connecting from an [IRC] client to
 
 irgramd is written in [python] (version 3), it acts as an IRC server
 where an IRC client can connect and on the other side it's a Telegram client
-using the [Telethon] library.
+using the [telethon] library.
 
 **[irgramd primary repository] is in [darcs] version control system, github
 is used as [project management and secondary repository]**
@@ -52,7 +103,7 @@ executed in a different host).
 - Editions (receive, do)
 - Reactions (receive, send, remove)
 - Polls (receive, show)
-- Actions [pin message, channel photo] (receive)
+- Actions \[pin message, channel photo\] (receive)
 - Dialogs management
 - History
 - Authentication and TLS for IRC
@@ -124,7 +175,7 @@ totally optional, if not used, the module pyPAM is not needed.
 
 ## License
 
-Copyright (c) 2019 Peter Bui <pbui@bx612.space>  
+Copyright (c) 2019 Peter Bui <pbui@bx612.space>
 Copyright (c) 2020-2024 E. Bosch <presidev@AT@gmail.com>
 
 Use of this source code is governed by a MIT style license that
@@ -133,12 +184,11 @@ can be found in the LICENSE file included in this project.
 [IRC]: https://en.wikipedia.org/wiki/Internet_Relay_Chat
 [Telegram]: https://telegram.org/
 [python]: https://www.python.org/
-[Telethon]: https://github.com/LonamiWebs/Telethon
+[telethon]: https://github.com/LonamiWebs/Telethon
 [irgramd primary repository]: https://src.presi.org/darcs/irgramd
 [darcs]: http://darcs.net
 [project management and secondary repository]: https://github.com/prsai/irgramd
 [pbui/irtelegramd]: https://github.com/pbui/irtelegramd
-[python]: https://www.python.org
 [tornado]: https://www.tornadoweb.org
 [aioconsole]: https://github.com/vxgmichel/aioconsole
 [pyPAM]: https://packages.debian.org/bullseye/python3-pam

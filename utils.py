@@ -67,19 +67,14 @@ def split_lines(message):
     wr = textwrap.TextWrapper(width=MAX_LINE)
 
     # Split when Telegram original message has breaks
-    messages = message.splitlines()
-    lm = len(messages)
-    if lm > 1:
-        # Add "continued line" mark (\) for lines that belong to the same message
-        # (split previously)
-        messages = get_continued(messages, ' \\', lm)
+    messages = message.splitlines() # -clutter
     for m in messages:
         wrapped = wr.wrap(text=m)
         lw = len(wrapped)
         if lw > 1:
             # Add double "continued line" mark (\\) for lines that belong to the same message
             # and have been wrapped to not exceed IRC limits
-            messages_limited += get_continued(wrapped, ' \\\\', lw)
+            messages_limited += get_continued(wrapped, ' \\', lw) # -clutter
         else:
             messages_limited += wrapped
     del wr

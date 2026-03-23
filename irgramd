@@ -145,7 +145,7 @@ if __name__ == '__main__':
     if loglevel == False:
         print("Option 'log_level' requires one of these values: {}".format(tornado.options.options._options['log-level'].metavar))
         exit(1)
-    logger_formats = { 'datefmt':'%Y-%m-%d %H:%M:%S', 'format':'[%(levelname).1s %(asctime)s %(module)s:%(lineno)d] %(message)s' }
+    logger_formats = { 'format':'[%(levelname).1s %(module)s:%(lineno)d] %(message)s' } # -clutter
     logger = logging.getLogger()
     if options['log_file']:
         logging.basicConfig(filename=options['log_file'], level=loglevel, **logger_formats)

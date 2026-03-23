@@ -28,7 +28,7 @@ from exclam import exclam
 
 SRV = None
 ALL_PARAMS = 16
-VALID_IRC_NICK_FIRST_CHARS   = string.ascii_letters + '[]\`_^{|}'
+VALID_IRC_NICK_FIRST_CHARS   = string.ascii_letters + r'[]\`_^{|}'
 VALID_IRC_NICK_CHARS         = VALID_IRC_NICK_FIRST_CHARS + string.digits + '-'
 
 # IRC Regular Expressions
@@ -417,11 +417,9 @@ class IRCHandler(object):
                 cont = True
             if cont:
                 mid = self.tg.mid.num_to_id_offset(telegram_id, tg_msg.id)
-                text = '[{}] {}'.format(mid, message)
+                text = message # -mid
                 self.tg.to_cache(tg_msg.id, mid, text, message, user, chan, media=None)
-
-                if defered_send:
-                    await defered_send(user, defered_target, text)
+                # if defered_send: await defered_send(user, defered_target, text) # -clutter
         else:
             await self.reply_code(user, 'ERR_NOSUCHNICK', (target,))
 
@@ -438,7 +436,7 @@ class IRCHandler(object):
 
         user.registered = True
         await self.send_greeting(user)
-        await self.send_help(user)
+        # await self.send_help(user) # -clutter
         await self.check_telegram_auth(user)
 
     async def send_msg(self, source, target, message, selfuser=None):
@@ -487,7 +485,7 @@ class IRCHandler(object):
         await self.send_irc_command(user, ':{} PRIVMSG {} :{}'.format(src_mask, tgt, msg))
 
     async def reply_command(self, user, prfx, comm, params):
-        prefix = self.gethostname(user) if prfx == SRV else prfx.get_irc_mask()
+        prefix = self.gethostname(user) if prfx == SRV else user.get_irc_mask() # bugfix
         p = len(params)
         if p == 1:
             fstri = ':{} {} {}'

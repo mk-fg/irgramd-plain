@@ -313,7 +313,7 @@ class TelegramHandler(object):
         else:
             entity = await self.telegram_client.get_entity(tid)
             entity_cache[0] = entity
-        if isinstance(entity, tgty.Channel): 
+        if isinstance(entity, tgty.Channel):
             full = await self.telegram_client(GetFullChannelRequest(channel=entity))
         elif isinstance(entity, tgty.Chat):
             full = await self.telegram_client(GetFullChatRequest(chat_id=tid))
@@ -352,20 +352,7 @@ class TelegramHandler(object):
     def get_entity_type(self, entity, format):
         if isinstance(entity, tgty.User):
             short = long = 'User'
-        elif isinstance(entity, tgty.Chat):
-            short = 'Chat'
-            long = 'Chat/Basic Group'
-        elif isinstance(entity, tgty.Channel):
-            if entity.broadcast:
-                short = 'Broad'
-                long = 'Broadcast Channel'
-            elif entity.megagroup:
-                short = 'Mega'
-                long = 'Super/Megagroup Channel'
-            elif entity.gigagroup:
-                short = 'Giga'
-                long = 'Broadcast Gigagroup Channel'
-
+        else: short = long = 'Chat' # shorter
         return short if format == 'short' else long
 
     def get_peer_id_and_type(self, peer):
@@ -542,7 +529,7 @@ class TelegramHandler(object):
 
         id = event.message.id
         mid = self.mid.num_to_id_offset(event.message.peer_id, id)
-        fmid = '[{}]'.format(mid)
+        fmid = '' # -mid
         message = self.filters(event.message.message)
         message_rendered = await self.render_text(event.message, mid, upd_to_webpend=None)
 
@@ -568,16 +555,10 @@ class TelegramHandler(object):
                 if user is None:
                     self.refwd_me = True
 
-        # Reactions
-        else:
-            if reaction:
-                if self.last_reaction == reaction.date:
-                    return
-                self.last_reaction = reaction.date
-            action = 'React'
-            text_old, edition_react, user = self.format_reaction(event.message, message_rendered, edition_case, reaction)
+        else: return # -reactions
 
-        text = '|{} {}| {}'.format(action, text_old, edition_react)
+        if text_old: text = '📝 [[ {} ]] -> {}'.format(text_old, edition_react) # -mid fmt
+        else: text = '📝 {}'.format(edition_react) # -mid fmt
 
         chan = await self.relay_telegram_message(event, user, text)
 
@@ -585,6 +566,7 @@ class TelegramHandler(object):
         self.to_volatile_cache(self.prev_id, id, text, user, chan, current_date())
 
     async def handle_next_reaction(self, event):
+        return # -reactions
         self.logger.debug('Handling Telegram Next Reaction (2nd, 3rd, ...): %s', pretty(event))
 
         reactions = event.reactions.recent_reactions
@@ -613,14 +595,12 @@ class TelegramHandler(object):
         for deleted_id in event.original_update.messages:
             if deleted_id in self.cache:
                 recovered_text = self.cache[deleted_id]['rendered_text']
-                text = '|Deleted| {}'.format(recovered_text)
+                text = '✂️ {}'.format(recovered_text) # fmt
                 user = self.cache[deleted_id]['user']
                 chan = self.cache[deleted_id]['channel']
                 await self.relay_telegram_message(message=None, user=user, text=text, channel=chan)
                 self.to_volatile_cache(self.prev_id, deleted_id, text, user, chan, current_date())
-            else:
-                text = 'Message id {} deleted not in cache'.format(deleted_id)
-                await self.relay_telegram_private_message(self.irc.service_user, text)
+            else: continue # -clutter
 
     async def handle_raw(self, update):
         self.logger.debug('Handling Telegram Raw Event: %s', pretty(update))
@@ -656,6 +636,7 @@ class TelegramHandler(object):
             text = await self.handle_webpage(upd_to_webpend, message, mid)
         elif message.media:
             text = await self.handle_telegram_media(message, user, mid)
+            if not text: return # -webpending
         else:
             text = message.message
 
@@ -671,7 +652,8 @@ class TelegramHandler(object):
 
         target_mine = self.handle_target_mine(message.peer_id, user)
 
-        final_text = '[{}] {}{}{}'.format(mid, target_mine, refwd_text, text)
+        sp = '\n' if len(refwd_text) > 35 else (' << ' if refwd_text else '')
+        final_text = '{}{}{}{}'.format(refwd_text, sp, target_mine, text) # -mid +nl
         final_text = self.filters(final_text)
         return final_text
 
@@ -796,7 +778,7 @@ class TelegramHandler(object):
                 text = ''
                 replied_user = ''
                 sp = ''
-            replied_msg = '|Deleted|{}{}'.format(sp, text)
+            replied_msg = '✂️{}{}'.format(sp, text) # fmt
         if not replied_msg:
             replied_msg = ''
             space = ''
@@ -810,8 +792,7 @@ class TelegramHandler(object):
             replied_nick = ''
         else:
             replied_nick = replied_user.irc_nick
-
-        return '|Re {}: [{}]{}{}{}| '.format(replied_nick, cid, space, replied_msg, trunc)
+        return '-- re:<{}>{}{}{}'.format(replied_nick, space, replied_msg, trunc).replace('\n', ' ⏎ ') # -cid fmt
 
     async def handle_telegram_forward(self, message):
         space = space2 = ' '
@@ -860,6 +841,7 @@ class TelegramHandler(object):
                 media_url_or_data = message.message
                 caption = ''
                 self.webpending[message.media.webpage.id] = message
+                return # -webpending
             else:
                 media_type = 'webunknown'
                 media_url_or_data = message.message
@@ -1057,7 +1039,7 @@ class TelegramHandler(object):
     async def notice_downloading(self, size, relay_attr):
         if relay_attr and size > self.notice_size:
             message, user, mid, media_type = relay_attr
-            await self.relay_telegram_message(message, user, '[{}] [{}] [Downloading]'.format(mid, media_type))
+            await self.relay_telegram_message(message, user, '[{}] [Downloading]'.format(media_type)) # -mid
 
 class mesg_id:
     def __init__(self, alpha):
