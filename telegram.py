@@ -716,10 +716,12 @@ class TelegramHandler(object):
     async def handle_telegram_chat_action(self, event):
         self.logger.debug('Handling Telegram Chat Action: %s', pretty(event))
 
+        if not (msg := event.action_message): # bugfix
+            return self.logger.warning('Unhandled non-channel Telegram Chat Action: %s', pretty(event))
         try:
-            tid = event.action_message.to_id.channel_id
+            tid = msg.to_id.channel_id
         except AttributeError:
-            tid = event.action_message.to_id.chat_id
+            tid = msg.to_id.chat_id
         finally:
             irc_channel = await self.get_irc_channel_from_telegram_id(tid)
             await self.get_telegram_channel_participants(tid)
