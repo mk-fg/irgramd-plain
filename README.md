@@ -31,7 +31,8 @@ Vague list of what these local changes are intended to do:
 - Don't send TelegramSrv greeting, remove timestamps from logging
   (not needed in systemd journal).
 
-- Any relevant bugfixes, which are also likely reported in upstream repo.
+- Any relevant bugfixes, which might be reported in upstream repo,
+  or otherwise see relevant commit for traceback and info to report/fix.
 
 - See [prsai/irgramd#6] if using telegram account with a password, not patched here.
 
