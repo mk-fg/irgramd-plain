@@ -440,7 +440,7 @@ class IRCHandler(object):
         await self.check_telegram_auth(user)
 
     async def send_msg(self, source, target, message, selfuser=None):
-        messages = split_lines(message)
+        messages = split_lines(message or '') # bugfix
         tgt = target.lower() if target else ''
         is_chan = tgt in self.irc_channels.keys()
         # source None (False): it's self Telegram user, see [1]
