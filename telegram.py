@@ -930,7 +930,7 @@ class TelegramHandler(object):
         return self.format_media(media_type, media_url_or_data, caption)
 
     def handle_poll(self, poll):
-        text = poll.question
+        text = poll.question.text # bugfix
         for ans in poll.answers:
             text += '\n* ' + ans.text
         return text
