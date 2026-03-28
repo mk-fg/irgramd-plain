@@ -129,10 +129,15 @@ class TelegramHandler(object):
             self.logger.info('You must provide the Login code that Telegram will '
                              'sent you via SMS or another connected client')
             code = await aioconsole.ainput('Login code: ')
-            try:
-                await self.telegram_client.sign_in(code=code)
-            except:
-                pass
+            try: # +feature - prsai/irgramd/issues/6
+                try:
+                    await self.telegram_client.sign_in(code=code)
+                except telethon.errors.SessionPasswordNeededError:
+                    pw = await aioconsole.ainput(
+                        'Two-step password verification enabled. Enter password: ' )
+                    await self.telegram_client.sign_in(password=pw)
+            except Exception as err:
+                self.logger.error('Auth error: [%s] %s', err.__class__.__name__, err)
 
         await self.continue_auth()
 

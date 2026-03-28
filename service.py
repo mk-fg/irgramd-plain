@@ -7,6 +7,7 @@
 # can be found in the LICENSE file included in this project.
 
 from utils import compact_date, command, HELP
+import telethon
 from telethon import utils as tgutils
 
 class service(command):
@@ -40,6 +41,8 @@ class service(command):
             elif code.isdigit():
                 try:
                     await self.tg.telegram_client.sign_in(code=code)
+                except telethon.errors.SessionPasswordNeededError: # +feature
+                    reply = ('Password required, run in a terminal with --ask-code',)
                 except:
                     reply = ('Invalid code',)
                 else:

@@ -31,10 +31,11 @@ Vague list of what these local changes are intended to do:
 - Don't send TelegramSrv greeting, remove timestamps from logging
   (not needed in systemd journal).
 
-- Any relevant bugfixes, which might be reported in upstream repo,
-  or otherwise see relevant commit for traceback and info to report/fix.
+- Any fixes for bugs that pop-up for me, which might be reported in upstream repo,
+  or otherwise see relevant commit for traceback and info to report or cherry-pick.
 
-- See [prsai/irgramd#6] if using telegram account with a password, not patched here.
+- Includes patch for [prsai/irgramd#6] code+password auth.
+  Requires --ask-code and initial auth secret entries via terminal.
 
 URLs of this repository:
 
