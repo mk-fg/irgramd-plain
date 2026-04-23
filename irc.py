@@ -416,9 +416,11 @@ class IRCHandler(object):
                 tg_msg = await self.tg.telegram_client.send_message(telegram_id, message)
                 cont = True
             if cont:
-                mid = self.tg.mid.num_to_id_offset(telegram_id, tg_msg.id)
                 text = message # -mid
-                self.tg.to_cache(tg_msg.id, mid, text, message, user, chan, media=None)
+                if tg_msg: # bugfix vvv
+                    mid = self.tg.mid.num_to_id_offset(telegram_id, tg_msg.id)
+                    self.tg.to_cache(tg_msg.id, mid, text, message, user, chan, media=None)
+                else: await self.reply_code(user, 'ERR_NOTONCHANNEL', (target,))
                 # if defered_send: await defered_send(user, defered_target, text) # -clutter
         else:
             await self.reply_code(user, 'ERR_NOSUCHNICK', (target,))
